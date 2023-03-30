@@ -1,0 +1,31 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container">
+    <h1>Create Exercise</h1>
+    <form method="POST" action="{{ url_for('create_exercise') }}">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="body_group">Body Group</label>
+            <select class="form-control" id="body_group" name="body_group" required>
+                <option value="">Select a body group</option>
+                <option value="Chest">Chest</option>
+                <option value="Back">Back</option>
+                <option value="Shoulders">Shoulders</option>
+                <option value="Arms">Arms</option>
+                <option value="Legs">Legs</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="video_link">YouTube link</label>
+            <input type="text" class="form-control" id="video_link" name="video_link" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Exercise</button>
+    </form>
+</div>
+{% endblock %}

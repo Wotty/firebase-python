@@ -1,0 +1,27 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1>Create Workout</h1>
+            <form method="post">
+                <div class="form-group">
+                    <label for="name">Workout Name:</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="body-group">Body Group:</label>
+                    <select class="form-control" id="body-group" name="body_group" required>
+              <option value="">-- Select Body Group --</option>
+              <option value="Chest">Chest</option>
+              <option value="Back">Back</option>
+              <option value="Legs">Legs</option>
+              <option value="Arms">Arms</option>
+              <option value="Shoulders">Shoulders</option>
+            </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Workout</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
