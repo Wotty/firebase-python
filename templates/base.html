@@ -3,24 +3,26 @@
 
 <head>
     <!-- <title>{% block title %}{% endblock %}</title> -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="{{ url_for('index') }}">Workout App</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+        <a class="navbar-brand" href="{{ url_for('app.index') }}">Workout App</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item {% if request.path == url_for('index') %}active{% endif %}">
-                    <a class="nav-link" href="{{ url_for('index') }}">Workouts</a>
+                <li class="nav-item {% if request.path == url_for('app.index') %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('app.index') }}">Workouts</a>
                 </li>
                 {% if session['id'] is defined %}
-                <li class="nav-item {% if request.path == url_for('exercises') %}active{% endif %}">
-                    <a class="nav-link" href="{{ url_for('exercises') }}">Exercises</a>
+                <li class="nav-item {% if request.path == url_for('app.exercises') %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('app.exercises') }}">Exercises</a>
                 </li>
 
                 {% endif %}
@@ -28,21 +30,22 @@
             <ul class="navbar-nav ml-auto">
                 {% if session['id'] is defined %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    <a class="nav-link" href="{{ url_for('app.logout') }}">Logout</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('index') }}">Login</a>
+                    <a class="nav-link" href="{{ url_for('app.index') }}">Login</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('register') }}">Register</a>
+                    <a class="nav-link" href="{{ url_for('app.register') }}">Register</a>
                 </li>
                 {% endif %}
             </ul>
         </div>
     </nav>
     <div class="container mt-4">
-        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %}
+        {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in
+        messages %}
         <div class="alert alert-{{ category }}">
             {{ message }}
         </div>

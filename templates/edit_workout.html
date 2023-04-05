@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block content %}
 <h1>Edit Workout</h1>
-<form method="POST" action="{{ url_for('edit_workout', workout_id=workout.key()) }}">
+<form method="POST" action="{{ url_for('app.edit_workout', workout_id=workout.key()) }}">
     <div class="form-group">
         <label for="name">Name</label>
         <input type="text" class="form-control" id="name" name="name" value="{{ workout.val()['name'] }}" required>
@@ -9,11 +9,12 @@
         <label for='body_group'>Body Group</label>
         <select class="form-control" id='body_group' name='body_group' required>
             <option value="">Select a body_group</option>
-            <option value="Chest" {% if workout.val()['body group'] == 'Chest' %}selected{% endif %}>Chest</option>
-            <option value="Back" {% if workout.val()['body group'] == 'Back' %}selected{% endif %}>Back</option>
-            <option value="Shoulders" {% if workout.val()['body group'] == 'Shoulders' %}selected{% endif %}>Shoulders</option>
-            <option value="Arms" {% if workout.val()['body group'] == 'Arms' %}selected{% endif %}>Arms</option>
-            <option value="Legs" {% if workout.val()['body group'] == 'Legs' %}selected{% endif %}>Legs</option>
+            <option value="Chest" {% if workout.val()['body group']=='Chest' %}selected{% endif %}>Chest</option>
+            <option value="Back" {% if workout.val()['body group']=='Back' %}selected{% endif %}>Back</option>
+            <option value="Shoulders" {% if workout.val()['body group']=='Shoulders' %}selected{% endif %}>Shoulders
+            </option>
+            <option value="Arms" {% if workout.val()['body group']=='Arms' %}selected{% endif %}>Arms</option>
+            <option value="Legs" {% if workout.val()['body group']=='Legs' %}selected{% endif %}>Legs</option>
         </select>
     </div>
     <button type="submit" class="btn btn-primary">Update Workout</button>

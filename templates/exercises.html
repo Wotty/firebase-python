@@ -1,20 +1,26 @@
 {% extends "base.html" %} {% block content %}
 <div class="container">
     <h1 class="my-4">Exercises</h1>
-    <a class="btn btn-primary" href="{{ url_for('create_exercise') }}">Create Exercise</a> {% for exercise in exercises.each() %}
+    <a class="btn btn-primary" href="{{ url_for('app.create_exercise') }}">Create Exercise</a> {% for exercise in
+    exercises.each() %}
     <div class="card mb-4">
         <div class="card-body">
             <h2 class="card-title">{{ exercise.val()['name'] }}</h2>
             <p class="card-text">{{ exercise.val()['description'] }}</p>
-            <iframe width="560" height="315" src={{exercise.val()[ 'video link']}} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <iframe width="560" height="315" src={{exercise.val()[ 'video link' ]}} title="YouTube video player"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen></iframe>
             <div class="row justify-content-center">
                 <div class="col-md-3">
-                    <a href="{{ url_for('edit_exercise', exercise_id=exercise.key()) }}" class="btn btn-primary">Edit Exercise</a>
+                    <a href="{{ url_for('app.edit_exercise', exercise_id=exercise.key()) }}"
+                        class="btn btn-primary">Edit Exercise</a>
                 </div>
                 <div class="col-md-3">
-                    <form action="{{ url_for('delete_exercise', exercise_id=exercise.key()) }}" method="POST">
+                    <form action="{{ url_for('app.delete_exercise', exercise_id=exercise.key()) }}" method="POST">
                         <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this exercise?')">Delete</button>
+                        <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to delete this exercise?')">Delete</button>
                     </form>
                 </div>
             </div>

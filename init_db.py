@@ -2,7 +2,9 @@ import json
 
 import pyrebase
 import requests
+import firebase_admin
 
+print(firebase_admin.__version__)
 with open("firebaseConfig.json", "r") as json_file:
     firebaseConfig = json.load(json_file)
 

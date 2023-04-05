@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block content %}
 <h1>Edit Set</h1>
-<form method="POST" action="{{ url_for('edit_set', exercise_id=set.key(),workout_id=workout_id) }}">
+<form method="POST" action="{{ url_for('app.edit_set', exercise_id=set.key(),workout_id=workout_id) }}">
     <div class="form-group">
         <label for="weight">Weight:</label>
         <input type="number" class="form-control" id="weight" name="weight" min="1" value="{{ set.val()['weight'] }}">
@@ -14,7 +14,7 @@
         <input type="number" class="form-control" id="sets" name="sets" min="1" value="{{ set.val()['sets'] }}">
     </div>
     <button type="submit" class="btn btn-primary">Update Set</button>
-    <a href="{{ url_for('view_workout',workout_id=set.val()['workout_id']) }}" class="btn btn-secondary">Cancel</a>
+    <a href="{{ url_for('app.view_workout',workout_id=set.val()['workout_id']) }}" class="btn btn-secondary">Cancel</a>
 
 </form>
 {% endblock %}

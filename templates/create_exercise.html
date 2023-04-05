@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% block content %}
 <div class="container">
     <h1>Create Exercise</h1>
-    <form method="POST" action="{{ url_for('create_exercise') }}">
+    <form method="POST" action="{{ url_for('app.create_exercise') }}">
         <div class="form-group">
             <label for="name">Name</label>
             <input type="text" class="form-control" id="name" name="name" required>
