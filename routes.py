@@ -9,7 +9,6 @@ from flask import (
     redirect,
     url_for,
     session,
-    jsonify,
 )
 
 import pyrebase
@@ -43,38 +42,26 @@ def index():
         # Get form data
         email = request.form["email"]
         password = request.form["password"]
-
         try:
             login = auth.sign_in_with_email_and_password(email, password)
-            session["id"] = login["localId"]
-            db.child("users").child(login["localId"]).update(
-                {"token": login["idToken"]}
-            )
-            flash("successfully logged in", "success")
         except requests.exceptions.HTTPError:
             flash("Invalid email or password.", "danger")
             return render_template("index.html")
+
+        session["id"] = login["localId"]
+        db.child("users").child(login["localId"]).update(
+            {"token": login["idToken"], "email": email}
+        )
+        flash("successfully logged in", "success")
 
     # Get workouts
     all_workouts = (
         db.child("workouts").order_by_child("localId").equal_to(session["id"]).get()
     )
-    print(all_workouts.val())
-    # print(user_workouts.val())
-    workouts = []
-    if all_workouts is not None:
-        for workout in all_workouts.each():
-            workout_data = workout.val()
-            workout_data["key"] = session["id"]
-            workouts.append(workout_data)
-
-        return render_template(
-            "workouts.html",
-            workouts=workouts,
-            all_workouts=json.dumps(all_workouts.val()),
-        )
-    flash("ERROR no workouts found")
-    return render_template("base.html")
+    return render_template(
+        "workouts.html",
+        workouts=all_workouts.val(),
+    )
 
 
 @app.route("/logout")
@@ -105,11 +92,13 @@ def register():
     name = request.form["name"]
     email = request.form["email"]
     password = request.form["password"]
-
-    # TODO: Insert user data into database
-    register = auth.create_user_with_email_and_password(email, password)
-    # Log user in
-    session["id"] = register["localId"]
+    user_exist = db.child("users").order_by_child("email").get()
+    if user_exist is None:
+        print(user_exist.val())
+        register = auth.create_user_with_email_and_password(email, password)
+        db.child("workouts").child(email).update({"name": name, "email": email})
+        # Log user in
+        session["id"] = register["localId"]
 
     # Redirect to homepage
     return redirect(url_for("app.index"))

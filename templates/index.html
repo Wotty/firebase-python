@@ -15,7 +15,7 @@
     <form action="{{ url_for('app.reset') }}" method="POST">
         <div class="form-group">
             <label for="reset_email">Email address</label>
-            <input type="email" class="form-control" id="reset_email" name="email" required>
+            <input type="email" class="form-control" id="reset_email" name="reset_email" required>
         </div>
         <input type="hidden" name="_method" value="reset">
         <button type="submit" class="btn btn-danger">Forgot Password</button>

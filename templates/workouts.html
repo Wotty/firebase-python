@@ -1,6 +1,6 @@
 {% extends "base.html" %} {% block content %}
 <div class="container">
-    <h1 class="my-4">Welcome {{name}} here is your workouts</h1>
+    <h1 class="my-4">Welcome here is your workouts</h1>
     <div id="myBtnContainer">
         <button class="btn active" data-filter="all"> Show all</button>
         <button class="btn" data-filter="Arms">Arms</button>
@@ -20,19 +20,19 @@
                 <p class="card-text">Body Group: {{ workout['body group'] }}</p>
                 <div class="row justify-content-center">
                     <div class="col-md-6 text-center">
-                        <a href="{{ url_for('app.view_workout', workout_id=workout['key']) }}"
+                        <a href="{{ url_for('app.view_workout', workout_id=workout['name']) }}"
                             class="btn btn-primary">View
                             Workout</a>
                     </div>
                     <div class="col-md-6 text-center">
-                        <a href="{{ url_for('app.edit_workout', workout_id=workout['key']) }}"
+                        <a href="{{ url_for('app.edit_workout', workout_id=workout['name']) }}"
                             class="btn btn-primary">Edit
                             Workout</a>
                     </div>
                 </div>
             </div>
             <div class="card-footer text-center">
-                <form action="{{ url_for('app.delete_workout',  workout_id=workout['key']) }}" method="POST">
+                <form action="{{ url_for('app.delete_workout',  workout_id=workout['name']) }}" method="POST">
                     <input type="hidden" name="_method" value="DELETE">
                     <button type="submit" class="btn btn-danger"
                         onclick="return confirm('Are you sure you want to delete this workout?')">Delete</button>
