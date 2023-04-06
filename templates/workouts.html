@@ -1,32 +1,79 @@
 {% extends "base.html" %} {% block content %}
 <div class="container">
-    <h1 class="my-4">Workouts</h1>
-    </li>
-    <a href="{{ url_for('app.create_workout') }}" class="btn btn-primary">Create Workout</a> {% for workout in
-    workouts.each() %}
-    <div class="card mb-4">
-        <div class="card-body">
-            <h2 class="card-title">{{ workout.val()['name'] }}</h2>
-            <p class="card-text">Body Group: {{ workout.val()['body group'] }}</p>
-            <div class="row justify-content-center">
-                <div class="col-md-3 text-center">
-                    <a href="{{ url_for('app.view_workout', workout_id=workout.key()) }}" class="btn btn-primary">View
-                        Workout</a>
-                </div>
-                <div class="col-md-3 text-center">
-                    <a href="{{ url_for('app.edit_workout', workout_id=workout.key()) }}" class="btn btn-primary">Edit
-                        Workout</a>
-                </div>
-                <div class="col-md-3 text-center">
-                    <form action="{{ url_for('app.delete_workout',  workout_id=workout.key()) }}" method="POST">
-                        <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="btn btn-danger"
-                            onclick="return confirm('Are you sure you want to delete this workout?')">Delete</button>
-                    </form>
+    <h1 class="my-4">Welcome {{name}} here is your workouts</h1>
+    <div id="myBtnContainer">
+        <button class="btn active" data-filter="all"> Show all</button>
+        <button class="btn" data-filter="Arms">Arms</button>
+        <button class="btn" data-filter="Chest"> Chest</button>
+        <button class="btn" data-filter="Back"> Back</button>
+        <button class="btn" data-filter="Legs"> Legs</button>
+        <button class="btn" data-filter="Shoulders"> Shoulders</button>
+    </div>
+    <div class="row">
+        {% for workout in workouts %}
+        <div class="card col-md-4" data-category="{{ workout['body group'] }}">
+            <div class="card-body">
+                <h2 class="card-title">{{ workout['name']}}</h2>
+                {% if "workout time" in workout %}
+                <h4 class="card-title">{{ workout['workout time']}}</h4>
+                {% endif %}
+                <p class="card-text">Body Group: {{ workout['body group'] }}</p>
+                <div class="row justify-content-center">
+                    <div class="col-md-6 text-center">
+                        <a href="{{ url_for('app.view_workout', workout_id=workout['key']) }}"
+                            class="btn btn-primary">View
+                            Workout</a>
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <a href="{{ url_for('app.edit_workout', workout_id=workout['key']) }}"
+                            class="btn btn-primary">Edit
+                            Workout</a>
+                    </div>
                 </div>
             </div>
+            <div class="card-footer text-center">
+                <form action="{{ url_for('app.delete_workout',  workout_id=workout['key']) }}" method="POST">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-danger"
+                        onclick="return confirm('Are you sure you want to delete this workout?')">Delete</button>
+                </form>
+            </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
+    <hr>
 </div>
+
+
+<div id="myData" data-db="{{ all_workouts }}"></div>
+
+<script>
+    var db = JSON.parse(document.getElementById('myData').getAttribute('data-db'));
+
+    function filterByCategory(category) {
+        var items = document.getElementsByClassName("card");
+
+        for (var i = 0; i < items.length; i++) {
+            var itemCategory = items[i].getAttribute("data-category");
+            if (category === "all" || itemCategory === category) {
+                items[i].style.display = "block";
+            } else {
+                items[i].style.display = "none";
+            }
+        }
+    }
+
+    var btnContainer = document.getElementById("myBtnContainer");
+    var btns = btnContainer.getElementsByClassName("btn");
+    for (var i = 0; i < btns.length; i++) {
+        btns[i].addEventListener("click", function () {
+            var current = document.getElementsByClassName("active");
+            current[0].classList.remove("active");
+            this.classList.add("active");
+            var filter = this.getAttribute('data-filter');
+            filterByCategory(filter);
+        });
+    }
+</script>
+
 {% endblock %}

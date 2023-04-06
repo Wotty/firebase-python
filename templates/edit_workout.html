@@ -17,6 +17,7 @@
             <option value="Legs" {% if workout.val()['body group']=='Legs' %}selected{% endif %}>Legs</option>
         </select>
     </div>
+    <input type="datetime-local" id="time" name="time" value="{{workout.val()['workout time']}}" required>
     <button type="submit" class="btn btn-primary">Update Workout</button>
 </form>
 {% endblock %}

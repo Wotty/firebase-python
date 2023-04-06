@@ -3,11 +3,14 @@
     <h1>Workout</h1>
 
     <h2>{{ workout.val()['name'] }}</h2>
+    <h4>{{ workout.val()['workout time']}}</h4>
     <a class="btn btn-primary" href="{{ url_for('app.index') }}">View All Workouts</a>
     <a class="btn btn-primary" href="{{ url_for('app.create_set',workout_id=workout.key()) }}">Add sets</a>
+    <a href="{{ url_for('app.edit_workout', workout_id=workout.key()) }}" class="btn btn-primary">Edit workout</a>
+
     <ul class="list-group">
 
-        {% if workout.val()["exercises"] != None %} {% with exercises = workout.val()["exercises"] %} {% for exercise in
+        {% if "exercises" not in workout.val()[] %} {% with exercises = workout.val()["exercises"] %} {% for exercise in
         exercises%}
         <li class="list-group-item d-flex justify-content-between align-items-center">
             {{ exercise }} - {{ exercises[exercise]["weight"] }}kg {{ exercises[exercise]["reps"] }} reps for {{
