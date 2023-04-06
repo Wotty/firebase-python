@@ -1,6 +1,4 @@
 from datetime import timedelta
-import json
-import requests
 
 from flask import Flask
 import routes

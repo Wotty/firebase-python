@@ -8,7 +8,7 @@ print(firebase_admin.__version__)
 with open("firebaseConfig.json", "r") as json_file:
     firebaseConfig = json.load(json_file)
 
-firebase = pyrebase.initialize_app(firebaseConfig)
+firebase = pyrebase.initialize_app(firebaseConfig["project_config"])
 
 # Database
 db = firebase.database()

@@ -42,10 +42,19 @@ def index():
         except requests.exceptions.HTTPError:
             flash("Invalid email or password.", "danger")
             return render_template("index.html")
-    workouts = (
-        db.child("workouts").order_by_child("localId").equal_to(session["id"]).get()
+
+    # Get workouts
+    all_workouts = db.child("workouts").get()
+    workouts = []
+    for workout in all_workouts.each():
+        workout_data = workout.val()
+        workout_data["key"] = workout.key()
+        if workout_data["localId"] == session["id"]:
+            workouts.append(workout_data)
+
+    return render_template(
+        "workouts.html", workouts=workouts, all_workouts=json.dumps(all_workouts.val())
     )
-    return render_template("workouts.html", workouts=workouts)
 
 
 @app.route("/logout")
@@ -56,10 +65,15 @@ def logout():
     return redirect(url_for("app.index"))
 
 
-@app.route("/password_reset<email>")
-def reset(email):
-    # remove the email from the session
-    # redirect to the index page
+@app.route("/reset", methods=["POST"])
+def reset():
+    email = request.form.get("email")
+    if not email:
+        flash("Please provide an email address", "danger")
+        return redirect(url_for("app.index"))
+
+    auth.send_password_reset_email(email)
+    flash(f"Password reset email sent to {email}", "success")
     return redirect(url_for("app.index"))
 
 
@@ -87,9 +101,15 @@ def create_workout():
         # Insert the new workout into the database
         workout_name = request.form["name"]
         body_group = request.form["body_group"]
+        workout_time = request.form["time"]
         localId = session["id"]
         db.child("workouts").child(workout_name).update(
-            {"name": workout_name, "localId": localId, "body group": body_group}
+            {
+                "name": workout_name,
+                "localId": localId,
+                "body group": body_group,
+                "workout time": workout_time,
+            }
         )
         return redirect(url_for("app.index"))
     else:
@@ -112,18 +132,23 @@ def edit_workout(workout_id):
         if "id" in session:
             localId = session["id"]
         else:
-            session["id"] = ""
+            localId = ""
         body_group = request.form["body_group"]
+        workout_time = request.form["time"]
 
         db.child("workouts").child(workout_id).update(
-            {"name": name, "localId": localId, "body group": body_group}
+            {
+                "name": name,
+                "localId": localId,
+                "body group": body_group,
+                "workout time": workout_time,
+            }
         )
 
         flash("Workout updated successfully", "success")
         return redirect(url_for("app.index"))
 
     workouts = db.child("workouts").child(workout_id).get()
-
     return render_template("edit_workout.html", workout=workouts, workout_id=workout_id)
 
 
@@ -195,6 +220,7 @@ def create_set(workout_id):
         weight = request.form["weight"]
         reps = request.form["reps"]
         sets = request.form["sets"]
+
         exercise_id = request.form["exercise_id"]
         db.child("workouts").child(workout_id).child("exercises").child(
             exercise_id
@@ -238,3 +264,14 @@ def delete_set(workout_id, exercise_id):
     ).remove()
     flash("Set deleted successfully", "success")
     return redirect(url_for("app.view_workout", workout_id=workout_id))
+
+
+# define the function to filter data by category
+def filter_by_category(category):
+    items = db.child("workouts").get()
+
+    for item in items.each():
+        if category == "all":
+            print(item.key(), item.val())
+        elif item.val()["category"] == category:
+            print(item.key(), item.val())
