@@ -1,7 +1,17 @@
 import json
 import requests
 
-from flask import Blueprint, flash, render_template, request, redirect, url_for, session
+from flask import (
+    Blueprint,
+    flash,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    session,
+    jsonify,
+)
+
 import pyrebase
 import firebase_admin
 from firebase_admin import credentials
@@ -46,22 +56,25 @@ def index():
             return render_template("index.html")
 
     # Get workouts
-    all_workouts = db.child("workouts").child(session["id"]).get()
+    all_workouts = (
+        db.child("workouts").order_by_child("localId").equal_to(session["id"]).get()
+    )
+    print(all_workouts.val())
+    # print(user_workouts.val())
     workouts = []
     if all_workouts is not None:
-        try:
-            for workout in all_workouts.each():
-                workout_data = workout.val()
-                workout_data["key"] = workout.key()
-                workouts.append(workout_data)
-        except:
-            return session
+        for workout in all_workouts.each():
+            workout_data = workout.val()
+            workout_data["key"] = session["id"]
+            workouts.append(workout_data)
 
         return render_template(
             "workouts.html",
             workouts=workouts,
             all_workouts=json.dumps(all_workouts.val()),
         )
+    flash("ERROR no workouts found")
+    return render_template("base.html")
 
 
 @app.route("/logout")
@@ -275,9 +288,10 @@ def delete_set(workout_id, exercise_id):
 
 # define the function to filter data by category
 def filter_by_category(category):
-    items = db.child("workouts").get()
-
-    for item in items.each():
+    all_workouts = (
+        db.child("workouts").order_by_child("localId").equal_to(session["id"]).get()
+    )
+    for item in all_workouts.each():
         if category == "all":
             print(item.key(), item.val())
         elif item.val()["category"] == category:
