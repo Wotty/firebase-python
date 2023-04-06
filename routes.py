@@ -44,13 +44,12 @@ def index():
             return render_template("index.html")
 
     # Get workouts
-    all_workouts = db.child("workouts").get()
+    all_workouts = db.child("workouts").child(session["id"]).get()
     workouts = []
     for workout in all_workouts.each():
         workout_data = workout.val()
         workout_data["key"] = workout.key()
-        if workout_data["localId"] == session["id"]:
-            workouts.append(workout_data)
+        workouts.append(workout_data)
 
     return render_template(
         "workouts.html", workouts=workouts, all_workouts=json.dumps(all_workouts.val())
