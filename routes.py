@@ -44,6 +44,7 @@ def index():
             return render_template("index.html")
 
     # Get workouts
+    print(session)
     all_workouts = db.child("workouts").child(session["id"]).get()
     workouts = []
     for workout in all_workouts.each():
