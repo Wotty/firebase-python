@@ -38,23 +38,25 @@ def index():
             login = auth.sign_in_with_email_and_password(email, password)
             session["id"] = login["localId"]
             db.child("users").child(session["id"]).update({"token": login["idToken"]})
-            flash("succesfully logged in", "success")
+            flash("successfully logged in", "success")
         except requests.exceptions.HTTPError:
             flash("Invalid email or password.", "danger")
             return render_template("index.html")
 
     # Get workouts
-    print(session)
     all_workouts = db.child("workouts").child(session["id"]).get()
     workouts = []
-    for workout in all_workouts.each():
-        workout_data = workout.val()
-        workout_data["key"] = workout.key()
-        workouts.append(workout_data)
-
-    return render_template(
-        "workouts.html", workouts=workouts, all_workouts=json.dumps(all_workouts.val())
-    )
+    if all_workouts is not None:
+        for workout in all_workouts.each():
+            workout_data = workout.val()
+            workout_data["key"] = workout.key()
+            workouts.append(workout_data)
+        return render_template(
+            "workouts.html",
+            workouts=workouts,
+            all_workouts=json.dumps(all_workouts.val()),
+        )
+    return session
 
 
 @app.route("/logout")
