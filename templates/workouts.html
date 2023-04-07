@@ -21,9 +21,9 @@
 
     <div class="row">
         {% for workout in workouts %}
-        <div class="card col-md-4" data-category="{{ workout }}">
+        <div class="card col-md-4">
             <div class="card-body">
-                <h2 class="card-title">{{ workout}}</h2>
+                <h2 class="card-title">{{ workouts[workout]['name']}}</h2>
                 {% if 'workout time' in workouts[workout] %}
                 <h4 class="card-title">{{ workouts[workout]['workout time']}}</h4>
                 {% endif %}
