@@ -34,8 +34,9 @@ db = firebase.database()
 auth = firebase.auth()
 
 # login
-@app.route("/", methods=["POST", "GET"])
-def index():
+@app.route("/", defaults={"category": None}, methods=["GET", "POST"])
+@app.route("/<category>", methods=["GET", "POST"])
+def index(category):
     if "id" not in session:
         if request.method == "GET":
             return render_template("index.html")
@@ -44,23 +45,33 @@ def index():
         password = request.form["password"]
         try:
             login = auth.sign_in_with_email_and_password(email, password)
+            flash("successfully logged in", "success")
         except requests.exceptions.HTTPError:
             flash("Invalid email or password.", "danger")
             return render_template("index.html")
 
         session["id"] = login["localId"]
-        db.child("users").child(login["localId"]).update(
-            {"token": login["idToken"], "email": email}
+    if category is not None:
+        all_workouts = (
+            db.child("workouts").order_by_child("localId").equal_to(session["id"]).get()
         )
-        flash("successfully logged in", "success")
+        filtered_workouts = {}
+        for workout in all_workouts.each():
+            if workout.val()["body group"] == category:
+                key = workout.val()["name"]
+                filtered_workouts[key] = workout.val()
+    else:
+        filtered_workouts = (
+            db.child("workouts").order_by_child("localId").equal_to(session["id"]).get()
+        ).val()
+
+    user = db.child("users").child(session["id"]).get()
 
     # Get workouts
-    all_workouts = (
-        db.child("workouts").order_by_child("localId").equal_to(session["id"]).get()
-    )
     return render_template(
         "workouts.html",
-        workouts=all_workouts.val(),
+        name=user.val()["name"],
+        workouts=filtered_workouts,
     )
 
 
@@ -129,8 +140,8 @@ def create_workout():
 @app.route("/workout/<workout_id>")
 def view_workout(workout_id):
     # Display the details of a specific workout
-    workouts = db.child("workouts").child(workout_id).get()
-    return render_template("workout.html", workout=workouts)
+    workout = db.child("workouts").child(workout_id).get()
+    return render_template("workout.html", workout=workout)
 
 
 @app.route("/edit_workout/<workout_id>", methods=["GET", "POST"])
