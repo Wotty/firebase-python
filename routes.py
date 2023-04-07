@@ -1,4 +1,5 @@
 import json
+import os
 import requests
 
 from flask import (
@@ -7,6 +8,7 @@ from flask import (
     render_template,
     request,
     redirect,
+    send_from_directory,
     url_for,
     session,
 )
@@ -35,7 +37,7 @@ auth = firebase.auth()
 
 # login
 @app.route("/", defaults={"category": None}, methods=["GET", "POST"])
-@app.route("/<category>", methods=["GET", "POST"])
+@app.route("/<category>")
 def index(category):
     if "id" not in session:
         if request.method == "GET":
@@ -66,14 +68,23 @@ def index(category):
         ).val()
 
     user = db.child("users").child(session["id"]).get()
-
+    try:
+        exercise_maxes = user.val()["theoretical maxes"]
+    except:
+        exercise_maxes = {}
     # Get workouts
     return render_template(
         "workouts.html",
         name=user.val()["name"],
         workouts=filtered_workouts,
         category=category,
+        exercise_maxes=exercise_maxes,
     )
+
+
+@app.route("/lifts")
+def lifts():
+    return render_template("lifts.html")
 
 
 @app.route("/logout")
@@ -135,7 +146,7 @@ def create_workout():
         localId = session["id"]
         db.child("workouts").child(workout_name).update(
             {
-                "name": workout_name,
+                "name": f"{workout_name} - {workout_time}",
                 "localId": localId,
                 "body group": body_group,
                 "workout time": workout_time,
@@ -158,11 +169,11 @@ def view_workout(workout_id):
 def edit_workout(workout_id):
     # Display the details of a specific workout
     if request.method == "POST":
+        if "id" not in session:
+            flash("please log in first", "primary")
+            return redirect("/")
         name = request.form["name"]
-        if "id" in session:
-            localId = session["id"]
-        else:
-            localId = ""
+        localId = session["id"]
         body_group = request.form["body_group"]
         workout_time = request.form["time"]
 
@@ -198,22 +209,21 @@ def exercises():
 
 @app.route("/create_exercise", methods=["GET", "POST"])
 def create_exercise():
-    if request.method == "POST":
-        # Insert the new exercise into the database
-        name = request.form["name"]
-        description = request.form["description"]
-        video_link = request.form["video_link"]
-        db.child("exercises").child(name).update(
-            {
-                "name": name,
-                "video link": video_link,
-                "description": description,
-            }
-        )
-        return redirect(url_for("app.exercises"))
-    else:
+    if request.method == "GET":
         # Display a form to add a new exercise
         return render_template("create_exercise.html")
+    # Insert the new exercise into the database
+    name = request.form["name"]
+    description = request.form["description"]
+    video_link = request.form["video_link"]
+    db.child("exercises").child(name).update(
+        {
+            "name": name,
+            "video link": video_link,
+            "description": description,
+        }
+    )
+    return redirect(url_for("app.exercises"))
 
 
 @app.route("/edit_exercise/<exercise_id>", methods=["GET", "POST"])
@@ -243,30 +253,58 @@ def delete_exercise(exercise_id):
     return redirect(url_for("app.exercises"))
 
 
+def update_one_rep_max(exercise_name, weight, reps):
+    exercise_max = (
+        db.child("users")
+        .child(session["id"])
+        .child("exercise maxes")
+        .child(exercise_name)
+        .get()
+        .val()
+    )
+    theoretical_max = round(weight / (1.0278 - (0.0278 * float(reps))), 1)
+    if exercise_max:
+        theoretical_max = max(exercise_max["theoretical max"], theoretical_max)
+    db.child("users").child(session["id"]).child("theoretical maxes").child(
+        exercise_name
+    ).update(
+        {
+            "name": exercise_name,
+            "theoretical max": theoretical_max,
+        }
+    )
+
+
 @app.route("/create_set/<workout_id>", methods=["POST", "GET"])
 def create_set(workout_id):
-    if request.method == "POST":
-        # Insert the new exercise into the database
-        weight = request.form["weight"]
-        reps = request.form["reps"]
-        sets = request.form["sets"]
-
-        exercise_id = request.form["exercise_id"]
-        db.child("workouts").child(workout_id).child("exercises").child(
-            exercise_id
-        ).update(
-            {"weight": weight, "reps": reps, "sets": sets, "exercise name": exercise_id}
+    if request.method == "GET":
+        exercises = db.child("exercises").get()
+        return render_template(
+            "create_set.html", workout_id=workout_id, exercises=exercises
         )
-        return redirect(url_for("app.view_workout", workout_id=workout_id))
-    exercises = db.child("exercises").get()
-    return render_template(
-        "create_set.html", workout_id=workout_id, exercises=exercises
+    # Insert the new exercise into the database
+    weight = float(request.form["weight"])
+    reps = int(request.form["reps"])
+    sets = int(request.form["sets"])
+
+    exercise_id = request.form["exercise_id"]
+    db.child("workouts").child(workout_id).child("exercises").child(exercise_id).update(
+        {
+            "weight": weight,
+            "reps": reps,
+            "sets": sets,
+            "exercise name": exercise_id,
+        }
     )
+
+    # Update theoretical maxes
+    update_one_rep_max(exercise_id, weight, reps)
+    return redirect(url_for("app.view_workout", workout_id=workout_id))
 
 
 @app.route("/edit_set/<workout_id>/<exercise_id>", methods=["GET", "POST"])
 def edit_set(workout_id, exercise_id):
-    set = (
+    workout_set = (
         db.child("workouts")
         .child(workout_id)
         .child("exercises")
@@ -274,15 +312,17 @@ def edit_set(workout_id, exercise_id):
         .get()
     )
     if request.method == "GET":
-        return render_template("edit_set.html", set=set, workout_id=workout_id)
-    weight = request.form["weight"]
-    reps = request.form["reps"]
-    sets = request.form["sets"]
+        return render_template("edit_set.html", set=workout_set, workout_id=workout_id)
+    weight = float(request.form["weight"])
+    reps = int(request.form["reps"])
+    sets = int(request.form["sets"])
     db.child("workouts").child(workout_id).child("exercises").child(exercise_id).update(
         {"weight": weight, "reps": reps, "sets": sets, "exercise name": exercise_id}
     )
     flash("Set updated successfully", "success")
-    print(set)
+    print(workout_set.val())
+    # Update theoretical maxes
+    update_one_rep_max(exercise_id, weight, reps)
     return redirect(url_for("app.view_workout", workout_id=workout_id))
 
 
@@ -306,3 +346,12 @@ def filter_by_category(category):
             print(item.key(), item.val())
         elif item.val()["category"] == category:
             print(item.key(), item.val())
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(
+        os.path.join(app.root_path, "static"),
+        "favicon.ico",
+        mimetype="image/vnd.microsoft.icon",
+    )

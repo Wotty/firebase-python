@@ -24,9 +24,7 @@
         <div class="card col-md-4">
             <div class="card-body">
                 <h2 class="card-title">{{ workouts[workout]['name']}}</h2>
-                {% if 'workout time' in workouts[workout] %}
                 <h4 class="card-title">{{ workouts[workout]['workout time']}}</h4>
-                {% endif %}
                 <p class="card-text">Body Group: {{ workouts[workout]['body group'] }}</p>
                 <div class="row justify-content-center">
                     <div class="col-md-4 text-center mb-4">
@@ -50,6 +48,28 @@
         </div>
         {% endfor %}
     </div>
-    <hr>
+    <div class="row">
+        <h2 class="col-md-9">Here's a table of your theoretical maxes for each exercise</h2>
+        <div class="col-md-3 text-right text-center">
+            <a href="{{ url_for('app.lifts') }}" class="btn btn-primary">View Lift Comparison</a>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Theoretical Max</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for exercise, max in exercise_maxes.items() %}
+                <tr>
+                    <td>{{ exercise }}</td>
+                    <td>{{ max["theoretical max"] }}kg</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
 </div>
 {% endblock %}
