@@ -1,26 +1,28 @@
 {% extends 'base.html' %} {% block content %}
-<h1>Create Set</h1>
-<form method="POST">
-    <div>
-        <label for="weight">Weight:</label>
-        <input type="number" name="weight" id="weight" min="1" required>
-    </div>
-    <div>
-        <label for="reps">Reps:</label>
-        <input type="number" name="reps" id="reps" min="1" required>
-    </div>
-    <div>
-        <label for="sets">Number of Sets:</label>
-        <input type="number" name="sets" id="sets" min="1" required>
-    </div>
-    <div>
-        <label for="exercise_id">Exercise:</label>
-        <select name="exercise_id" id="exercise_id" required>
+<div class="container my-5">
+    <h1>Create Set for {{workout_id}}</h1>
+    <form method="POST">
+        <div class="form-group">
+            <label for="weight">Weight:</label>
+            <input type="number" class="form-control" name="weight" id="weight" min="1" required>
+        </div>
+        <div class="form-group">
+            <label for="reps">Reps:</label>
+            <input type="number" class="form-control" name="reps" id="reps" min="1" required>
+        </div>
+        <div class="form-group">
+            <label for="sets">Number of Sets:</label>
+            <input type="number" class="form-control" name="sets" id="sets" min="1" required>
+        </div>
+        <div class="form-group">
+            <label for="exercise_id">Exercise:</label>
+            <select class="form-control" name="exercise_id" id="exercise_id" required>
                 {% for exercise in exercises.each() %}
-                    <option value="{{ exercise.val()['name'] }}">{{ exercise.val()['name'] }}</option>
+                <option value="{{ exercise.val()['name'] }}">{{ exercise.val()['name'] }}</option>
                 {% endfor %}
             </select>
-    </div>
-    <button type="submit">Create Set</button>
-</form>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Set</button>
+    </form>
+</div>
 {% endblock %}

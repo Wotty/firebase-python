@@ -104,13 +104,22 @@ def register():
     name = request.form["name"]
     email = request.form["email"]
     password = request.form["password"]
-    user_exist = db.child("users").order_by_child("email").get()
-    if user_exist is None:
-        print(user_exist.val())
+    confirm_password = request.form["confirm_password"]
+
+    if password != confirm_password:
+        flash("Passwords do not match", "danger")
+        return redirect(url_for("app.register"))
+
+    user_exist = db.child("users").order_by_child("email").equal_to(email).get()
+    if not user_exist.val():
         register = auth.create_user_with_email_and_password(email, password)
-        db.child("workouts").child(email).update({"name": name, "email": email})
-        # Log user in
         session["id"] = register["localId"]
+        db.child("users").child(session["id"]).update({"name": name, "email": email})
+        # Log user in
+    else:
+        print(user_exist.val())
+
+        flash("User already created", "danger")
 
     # Redirect to homepage
     return redirect(url_for("app.index"))
