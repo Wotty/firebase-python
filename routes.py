@@ -72,6 +72,7 @@ def index(category):
         "workouts.html",
         name=user.val()["name"],
         workouts=filtered_workouts,
+        category=category,
     )
 
 

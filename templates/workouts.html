@@ -9,13 +9,14 @@
         </div>
 
     </div>
-    <div id="myBtnContainer">
-        <a href="/" class="btn active" data-filter="all"> Show all</a>
-        <a href="/Arms" class="btn" data-filter="Arms">Arms</a>
-        <a href="/Chest" class="btn" data-filter="Chest"> Chest</a>
-        <a href="/Back" class="btn" data-filter="Back"> Back</a>
-        <a href="/Legs" class="btn" data-filter="Legs"> Legs</a>
-        <a href="/Shoulders" class="btn" data-filter="Shoulders"> Shoulders</a>
+    <div id="filters">
+        <a href="/" class="btn {% if category == None %}active{% endif %}" data-filter="all"> Show all</a>
+        <a href="/Arms" class="btn {% if category == 'Arms' %}active{% endif %}" data-filter="Arms">Arms</a>
+        <a href="/Chest" class="btn {% if category == 'Chest' %}active{% endif %}" data-filter="Chest"> Chest</a>
+        <a href="/Back" class="btn {% if category == 'Back' %}active{% endif %}" data-filter="Back"> Back</a>
+        <a href="/Legs" class="btn {% if category == 'Legs' %}active{% endif %}" data-filter="Legs"> Legs</a>
+        <a href="/Shoulders" class="btn {% if category == 'Shoulders' %}active{% endif %}" data-filter="Shoulders">
+            Shoulders</a>
     </div>
 
     <div class="row">
