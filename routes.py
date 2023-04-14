@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 import requests
@@ -16,6 +17,12 @@ from flask import (
 import pyrebase
 import firebase_admin
 from firebase_admin import credentials
+from onesignal_sdk.client import Client
+
+client = Client(
+    rest_api_key="YjE0NDE3YjgtNjlkNy00YWVkLWFlYjAtODFmMGFjM2Y2NDI1",
+    app_id="c297534c-4c51-460a-a5e7-ad932040993a",
+)
 
 app = Blueprint("app", __name__)
 
@@ -343,6 +350,22 @@ def todos():
     return render_template("todos.html", todos=todos, name=name)
 
 
+def send_push_notification(
+    message, headings=None, player_ids=None, included_segments=None
+):
+    notification = {
+        "contents": {"en": message},
+        "headings": {"en": headings} if headings else None,
+    }
+    if player_ids:
+        notification["include_player_ids"] = player_ids
+    if included_segments:
+        notification["included_segments"] = included_segments
+
+    response = client.send_notification(notification)
+    return response
+
+
 @app.route("/todos/create", methods=["GET", "POST"])
 def create_todo():
     if request.method == "POST":
@@ -352,9 +375,11 @@ def create_todo():
         todo = {
             "description": todo_description,
             "done": False,
-            "due date": todo_due_date,
+            "due_date": todo_due_date,
         }
         db.child("users").child(session["id"]).child("todos").child(todo_name).set(todo)
+        # Schedule a notification if the due date is in the past
+        send_push_notification(todo_name)
         flash(f"Todo {todo_name} created successfully!", "success")
         return redirect(url_for("app.todos"))
     else:
