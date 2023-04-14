@@ -354,6 +354,7 @@ def send_push_notification(
     message, headings=None, player_ids=None, included_segments=None
 ):
     notification = {
+        "app_id": "c297534c-4c51-460a-a5e7-ad932040993a",
         "contents": {"en": message},
         "headings": {"en": headings} if headings else None,
     }
@@ -377,9 +378,9 @@ def create_todo():
             "done": False,
             "due_date": todo_due_date,
         }
+        send_push_notification(todo_name)
         db.child("users").child(session["id"]).child("todos").child(todo_name).set(todo)
         # Schedule a notification if the due date is in the past
-        send_push_notification(todo_name)
         flash(f"Todo {todo_name} created successfully!", "success")
         return redirect(url_for("app.todos"))
     else:
