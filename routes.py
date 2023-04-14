@@ -336,6 +336,52 @@ def delete_set(workout_id, exercise_id):
     return redirect(url_for("app.view_workout", workout_id=workout_id))
 
 
+@app.route("/todos")
+def todos():
+    todos = db.child("users").child(session["id"]).child("todos").get()
+    name = db.child("users").child(session["id"]).child("name").get().val()
+    return render_template("todos.html", todos=todos, name=name)
+
+
+@app.route("/todos/create", methods=["GET", "POST"])
+def create_todo():
+    if request.method == "POST":
+        todo_name = request.form["name"]
+        todo_description = request.form["description"]
+        todo_due_date = request.form["due date"]
+        todo = {
+            "description": todo_description,
+            "done": False,
+            "due date": todo_due_date,
+        }
+        db.child("users").child(session["id"]).child("todos").child(todo_name).set(todo)
+        flash(f"Todo {todo_name} created successfully!", "success")
+        return redirect(url_for("app.todos"))
+    else:
+        return render_template("create_todo.html")
+
+
+@app.route("/todos/<todo_id>/update", methods=["POST"])
+def update_todo(todo_id):
+    todo_ref = db.child("users").child(session["id"]).child("todos").child(todo_id)
+    completed = request.form.get("completed")
+    due_date = request.form.get("due date")
+
+    if not due_date:
+        todo_ref.update({"done": completed})
+    else:
+        todo_ref.update({"due date": due_date})
+
+    return redirect(url_for("app.todos"))
+
+
+@app.route("/todos/<todo_id>/delete", methods=["POST"])
+def delete_todo(todo_id):
+    print(todo_id)
+    db.child("users").child(session["id"]).child("todos").child(todo_id).remove()
+    return redirect(url_for("app.todos"))
+
+
 # define the function to filter data by category
 def filter_by_category(category):
     all_workouts = (
